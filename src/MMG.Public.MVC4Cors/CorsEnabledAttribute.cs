@@ -1,26 +1,35 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.CorsEnabledAttribute.cs
-// Last Modified: 03/03/2016 3:12 PM
+// Last Modified: 03/03/2016 3:50 PM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
 namespace MMG.Public.MVC4Cors
 {
-    using System.Linq;
+    using System.Collections.Generic;
     using System.Web.Mvc;
 
     public class CorsEnabledAttribute : ActionFilterAttribute
     {
-        public string[] AllowedDomains { get; set; }
+        public HashSet<string> AllowedDomains { get; }
 
         public CorsEnabledAttribute()
         {
-            AllowedDomains = new string[] {"*"};
+            //TODO: Should no domains defined allow all domains?
+            //_allowedDomains = new HashSet<string>() { "*" };
+            AllowedDomains = new HashSet<string>();
         }
 
-        public CorsEnabledAttribute(params string[] domains)
+        public CorsEnabledAttribute(string pAllowedDomain)
         {
-            AllowedDomains = domains;
+            AllowedDomains = new HashSet<string>();
+            initialize(pAllowedDomain);
+        }
+
+        public CorsEnabledAttribute(params string[] pDomains)
+        {
+            AllowedDomains = new HashSet<string>();
+            initialize(pDomains);
         }
 
         public override void OnActionExecuting(ActionExecutingContext pFilterContext)
@@ -37,6 +46,20 @@ namespace MMG.Public.MVC4Cors
                         );
                 }
             }
+        }
+
+        private void initialize(string pAllowedDomains)
+        {
+            if (string.IsNullOrEmpty(pAllowedDomains))
+                return;
+
+            initialize(pAllowedDomains.Split(',', ';'));
+        }
+
+        private void initialize(params string[] pAllowedDomains)
+        {
+            foreach (var allowedDomain in pAllowedDomains)
+                AllowedDomains.Add(allowedDomain);
         }
     }
 
