@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.CorsEnabledAttribute.cs
-// Last Modified: 03/03/2016 2:46 PM
+// Last Modified: 03/03/2016 3:12 PM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -11,16 +11,16 @@ namespace MMG.Public.MVC4Cors
 
     public class CorsEnabledAttribute : ActionFilterAttribute
     {
-        private readonly string[] allowedDomains;
+        public string[] AllowedDomains { get; set; }
 
         public CorsEnabledAttribute()
         {
-            allowedDomains = new string[] {"*"};
+            AllowedDomains = new string[] {"*"};
         }
 
         public CorsEnabledAttribute(params string[] domains)
         {
-            allowedDomains = domains;
+            AllowedDomains = domains;
         }
 
         public override void OnActionExecuting(ActionExecutingContext pFilterContext)
@@ -29,7 +29,7 @@ namespace MMG.Public.MVC4Cors
             var origin = httpContext.Request.Headers[Headers.Origin] ?? "";
             if (origin.Length > 0)
             {
-                if (!string.IsNullOrEmpty(origin) && (allowedDomains.Contains(origin) || allowedDomains.Contains("*")))
+                if (!string.IsNullOrEmpty(origin) && (AllowedDomains.Contains(origin) || AllowedDomains.Contains("*")))
                 {
                     httpContext.Response.Headers.Add
                         (
@@ -40,7 +40,7 @@ namespace MMG.Public.MVC4Cors
         }
     }
 
-    internal static class Headers
+    public static class Headers
     {
         public static string Origin = "Origin";
         public static string AccessControlRequestMethod = "Access-Control-Request-Method";
