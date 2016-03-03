@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVCCors.Tests.EnableCorsTests.cs
-// Last Modified: 03/03/2016 3:34 PM
+// Last Modified: 03/03/2016 3:36 PM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -77,24 +77,15 @@ namespace MMG.Public.MVCCors.Tests
         [Test]
         public void TestEnableCorsActionFilter_DisallowedDomain()
         {
-            var request = new Mock<HttpRequestBase>();
-            var response = new Mock<HttpResponseBase>();
-            var httpContext = new Mock<HttpContextBase>();
-            var actionContext = new Mock<ActionExecutingContext>();
-            var filter = new CorsEnabledAttribute();
+            var origin = "http://www.acme.com";
+            string[] allowedDomains = {};
 
-            httpContext.SetupGet(x => x.Request).Returns(request.Object);
-            httpContext.SetupGet(x => x.Response).Returns(response.Object);
-            actionContext.SetupGet(x => x.HttpContext).Returns(httpContext.Object);
-            response.SetupGet(x => x.Headers).Returns(new WebHeaderCollection());
-
-            response.Setup(r => r.AddHeader(It.IsAny<string>(), It.IsAny<string>()))
-                .Callback<string, string>((x, y) => response.Object.Headers.Add(x, y));
-
-            request.SetupGet(x => x.UserHostName).Returns("www.acme.com");
+            var actionContext = getMockedActionExecutingContext(origin);
+            var response = actionContext.Object.HttpContext.Response;
+            var filter = new CorsEnabledAttribute(allowedDomains);
 
             filter.OnActionExecuting(actionContext.Object);
-            Assert.AreEqual(0, response.Object.Headers.Count);
+            Assert.AreEqual(0, response.Headers.Count);
         }
 
         [Test]
