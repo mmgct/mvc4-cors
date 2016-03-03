@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVCCors.Tests.EnableCorsTests.cs
-// Last Modified: 03/03/2016 3:33 PM
+// Last Modified: 03/03/2016 3:34 PM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -71,7 +71,7 @@ namespace MMG.Public.MVCCors.Tests
             Assert.AreEqual(1, response.Headers.Count);
             var corsHeader = response.Headers["Access-Control-Allow-Origin"];
             Assert.NotNull(corsHeader);
-            Assert.AreEqual("http://www.acme.com", corsHeader);
+            Assert.AreEqual(origin, corsHeader);
         }
 
         [Test]
