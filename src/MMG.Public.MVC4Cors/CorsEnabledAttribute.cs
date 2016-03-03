@@ -1,12 +1,13 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.CorsEnabledAttribute.cs
-// Last Modified: 03/03/2016 2:33 PM
+// Last Modified: 03/03/2016 2:46 PM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
 namespace MMG.Public.MVC4Cors
 {
     using System.Linq;
+    using System.Web.Mvc;
 
     public class CorsEnabledAttribute : ActionFilterAttribute
     {
@@ -22,22 +23,30 @@ namespace MMG.Public.MVC4Cors
             allowedDomains = domains;
         }
 
-        public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
+        public override void OnActionExecuting(ActionExecutingContext pFilterContext)
         {
-            if (actionExecutedContext.Request.Headers.Contains(Headers.Origin))
+            var httpContext = pFilterContext.HttpContext;
+            var origin = httpContext.Request.Headers[Headers.Origin] ?? "";
+            if (origin.Length > 0)
             {
-                var origin = actionExecutedContext.Request.Headers.GetValues(Headers.Origin).FirstOrDefault();
-
-                // if origin is not empty, and the allowed domains is either * or contains the origin domain
-                // then allow the request
                 if (!string.IsNullOrEmpty(origin) && (allowedDomains.Contains(origin) || allowedDomains.Contains("*")))
                 {
-                    actionExecutedContext.Response.Headers.Add
+                    httpContext.Response.Headers.Add
                         (
                             Headers.AccessControlAllowOrigin, origin
                         );
                 }
             }
         }
+    }
+
+    internal static class Headers
+    {
+        public static string Origin = "Origin";
+        public static string AccessControlRequestMethod = "Access-Control-Request-Method";
+        public static string AccessControlRequestHeaders = "Access-Control-Request-Headers";
+        public static string AccessControlAllowMethods = "Access-Control-Allow-Methods";
+        public static string AccessControlAllowHeaders = "Access-Control-Allow-Headers";
+        public static string AccessControlAllowOrigin = "Access-Control-Allow-Origin";
     }
 }
