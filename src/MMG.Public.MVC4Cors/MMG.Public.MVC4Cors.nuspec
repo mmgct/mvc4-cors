@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <projectUrl>https://github.com/mmgct</projectUrl>
+    <iconUrl>http://http://mmgct.com/favicon.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Version 1.0</releaseNotes>
+    <copyright>MMG Copyright 2016</copyright>
+    <tags>MMG CORS MVC4</tags>
+    <dependencies>
+      <dependency id="Microsoft.AspNet.Mvc" version="[4.0.20710.0, 5)" />
+    </dependencies>
+    
+  </metadata>
+</package>
