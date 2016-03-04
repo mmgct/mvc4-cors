@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.CorsEnabledAttribute.cs
-// Last Modified: 03/03/2016 3:50 PM
+// Last Modified: 03/04/2016 2:20 PM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -11,12 +11,12 @@ namespace MMG.Public.MVC4Cors
 
     public class CorsEnabledAttribute : ActionFilterAttribute
     {
-        public HashSet<string> AllowedDomains { get; }
+        public HashSet<string> AllowedDomains { get; private set; }
 
         public CorsEnabledAttribute()
         {
             //TODO: Should no domains defined allow all domains?
-            //_allowedDomains = new HashSet<string>() { "*" };
+            //AllowedDomains = new HashSet<string>() { "*" };
             AllowedDomains = new HashSet<string>();
         }
 
