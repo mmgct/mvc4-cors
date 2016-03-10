@@ -9,13 +9,13 @@
     <div class="col-lg-10">
         <div class="jumbotron">
             <small>
-                First run this locally substituting your local machine name...
+                First run this locally, substituting your local machine name...
                 <pre>netsh http add urlacl url=http://mmg-greenb3:62628/ user=everyone</pre>
                 Also need to modify your applicationhost.config at $(solutionDir)\.vs\config\applicationhost.config (assumes Studio 2015) to add this binding:
                 <pre>&lt;binding protocol="http" bindingInformation="*:62628:MMG-GREENB3" /&gt;</pre>
                 You will have to relaunch IIS Express after this... actually right-click it and Exit, then relaunch<br/>
-                That allows your browser to make requests to http://mmg-greenb3:62628 to test CORS<br/>
-                You will need to change button actions below for your machine name
+                Those changes allow your browser to make requests to http://mmg-greenb3:62628 to test CORS in true cross-origin fashion<br/>
+                (Note you will need to change button actions below for your machine name)<br/>
                 Hit F12 in Chrome, or run Fiddler to watch the back and forth headers<br/>
                 You can play with settings on the TestCors action to see different results<br/>
                 References:<br/>
