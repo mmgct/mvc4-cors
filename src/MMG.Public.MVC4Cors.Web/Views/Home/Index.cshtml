@@ -3,7 +3,54 @@
 }
 
 
-<div class="jumbotron">
-    <button type="button" class="btn btn-primary" onclick="CallHome()">Click Me</button>
-    <div class="alert-success" id="response"></div>
+<div class="row">
+    <div class="col-lg-1">
+    </div>
+    <div class="col-lg-10">
+        <div class="jumbotron">
+            <small>
+                First run this locally substituting your local machine name...
+                <pre>netsh http add urlacl url=http://mmg-greenb3:62628/ user=everyone</pre>
+                Also need to modify your applicationhost.config at $(solutionDir)\.vs\config\applicationhost.config (assumes Studio 2015) to add this binding:
+                <pre>&lt;binding protocol="http" bindingInformation="*:62628:MMG-GREENB3" /&gt;</pre>
+                You will have to relaunch IIS Express after this... actually right-click it and Exit, then relaunch<br/>
+                That allows your browser to make requests to http://mmg-greenb3:62628 to test CORS<br/>
+                You will need to change button actions below for your machine name
+                Hit F12 in Chrome, or run Fiddler to watch the back and forth headers<br/>
+                You can play with settings on the TestCors action to see different results<br/>
+                References:<br/>
+                <a href="http://stackoverflow.com/questions/3313616/iis-express-enable-external-request<br/>">http://stackoverflow.com/questions/3313616/iis-express-enable-external-request</a><br/>
+                <a href="http://stackoverflow.com/questions/5442551/iisexpress-returns-a-503-error-from-remote-machines">http://stackoverflow.com/questions/5442551/iisexpress-returns-a-503-error-from-remote-machines</a><br/>
+            </small>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-1">
+    </div>
+    <div class="col-lg-10">
+        <button type="button" class="btn btn-primary" onclick="CallHome('http://localhost:62628')">Call the TestCors action (localhost)</button>
+        &nbsp;
+        <button type="button" class="btn btn-primary" onclick="CallHome('http://MMG-GREENB3:62628')">Call the TestCors action (Machine Name)</button>
+        &nbsp;
+        <button type="button" class="btn btn-primary" onclick="CallHomeBlocked('http://MMG-GREENB3:62628')">Call the TestCorsBlocked action (Should get CORS error)</button>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-lg-1">
+    </div>
+    <div class="col-lg-11">
+        <b>Results:</b>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-1">
+    </div>
+    <div class="col-lg-10">
+        <div id="response">
+            <pre>json</pre>
+            <pre>header</pre>
+        </div>
+    </div>
 </div>
