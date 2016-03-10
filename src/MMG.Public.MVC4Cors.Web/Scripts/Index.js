@@ -6,7 +6,7 @@
   var jqxhr = $.ajax(
   {
     url: baseUrl + '/Home/' + method,
-    method: 'POST'
+    method: 'GET'
   }).done(function(resp, status, request) {
     var el = $("#response");
     var html;
@@ -36,6 +36,7 @@
     console.log(el);
   }).error(function(resp, status, error) {
     var el = $("#response");
+    console.log(resp.state());
     var html = "<div class='alert alert-danger'>Error - check Chrome dev tools or fiddler... cannot trap specific CORS errors in javascript</div>";
     el.fadeOut(500, function() {
       el.html(html);

@@ -1,12 +1,13 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.CorsEnabledAttribute.cs
-// Last Modified: 03/04/2016 2:20 PM
+// Last Modified: 03/10/2016 3:38 PM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
 namespace MMG.Public.MVC4Cors
 {
     using System.Collections.Generic;
+    using System.Net;
     using System.Web.Mvc;
 
     public class CorsEnabledAttribute : ActionFilterAttribute
@@ -36,7 +37,8 @@ namespace MMG.Public.MVC4Cors
         {
             var httpContext = pFilterContext.HttpContext;
             var origin = httpContext.Request.Headers[Headers.Origin] ?? "";
-            if (origin.Length > 0)
+
+            if (!string.IsNullOrWhiteSpace(origin))
             {
                 if (!string.IsNullOrEmpty(origin) && (AllowedDomains.Contains(origin) || AllowedDomains.Contains("*")))
                 {
@@ -44,6 +46,12 @@ namespace MMG.Public.MVC4Cors
                         (
                             Headers.AccessControlAllowOrigin, origin
                         );
+                }
+                else
+                {
+                    httpContext.Response.StatusCode = (int) HttpStatusCode.Forbidden;
+                    httpContext.Response.StatusDescription = "Failed Cross-Origin Request";
+                    pFilterContext.Result = new EmptyResult();
                 }
             }
         }

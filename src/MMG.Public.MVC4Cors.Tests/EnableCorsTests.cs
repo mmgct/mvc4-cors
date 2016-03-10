@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVCCors.Tests.EnableCorsTests.cs
-// Last Modified: 03/03/2016 4:22 PM
+// Last Modified: 03/10/2016 3:40 PM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -57,7 +57,8 @@ namespace MMG.Public.MVCCors.Tests
             response.SetupGet(x => x.Headers).Returns(new WebHeaderCollection());
             response.Setup(r => r.AddHeader(It.IsAny<string>(), It.IsAny<string>()))
                 .Callback<string, string>((x, y) => response.Object.Headers.Add(x, y));
-
+            response.SetupProperty(x => x.StatusCode);
+            response.SetupProperty(x => x.StatusDescription);
             request.SetupGet(x => x.Headers).Returns
                 (new WebHeaderCollection()
                 {
@@ -100,6 +101,8 @@ namespace MMG.Public.MVCCors.Tests
 
             filter.OnActionExecuting(actionContext.Object);
             Assert.AreEqual(0, response.Headers.Count);
+            Assert.AreEqual((int) HttpStatusCode.Forbidden, response.StatusCode);
+            Assert.AreEqual("Failed Cross-Origin Request", response.StatusDescription);
         }
 
         [Test]
