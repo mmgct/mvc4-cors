@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.CorsEnabledAttribute.cs
-// Last Modified: 03/10/2016 3:38 PM
+// Last Modified: 03/10/2016 4:00 PM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -49,9 +49,7 @@ namespace MMG.Public.MVC4Cors
                 }
                 else
                 {
-                    httpContext.Response.StatusCode = (int) HttpStatusCode.Forbidden;
-                    httpContext.Response.StatusDescription = "Failed Cross-Origin Request";
-                    pFilterContext.Result = new EmptyResult();
+                    pFilterContext.Result = new HttpStatusCodeResult(HttpStatusCode.Forbidden, "Failed Cross-Origin Request");
                 }
             }
         }
