@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.CorsEnabledAttribute.cs
-// Last Modified: 03/14/2016 8:50 AM
+// Last Modified: 03/14/2016 9:10 AM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -17,45 +17,40 @@ namespace MMG.Public.MVC4Cors
 
         public CorsEnabledAttribute()
         {
-            //TODO: Should no domains defined allow all domains?
-            //AllowedDomains = new HashSet<string>() { "*" };
-            AllowedDomains = new HashSet<string>();
-            IsDomainAllowedFunction = isDomainAllowed;
+            _isDomainAllowedFunction = isDomainAllowed;
+            initialize();
         }
 
         public CorsEnabledAttribute(string pAllowedDomain)
         {
-            AllowedDomains = new HashSet<string>();
-            IsDomainAllowedFunction = isDomainAllowed;
-            initialize(pAllowedDomain);
-        }
-
-        public CorsEnabledAttribute(Func<string, bool> pIsDomainAllowedFunction, string pAllowedDomain)
-        {
-            AllowedDomains = new HashSet<string>();
-            IsDomainAllowedFunction = pIsDomainAllowedFunction;
+            _isDomainAllowedFunction = isDomainAllowed;
             initialize(pAllowedDomain);
         }
 
         public CorsEnabledAttribute(params string[] pDomains)
         {
-            AllowedDomains = new HashSet<string>();
-            IsDomainAllowedFunction = isDomainAllowed;
+            _isDomainAllowedFunction = isDomainAllowed;
             initialize(pDomains);
         }
+
+        public CorsEnabledAttribute(Func<string, bool> pIsDomainAllowedFunction, string pAllowedDomain)
+        {
+            _isDomainAllowedFunction = pIsDomainAllowedFunction;
+            initialize(pAllowedDomain);
+        }
+
 
         public CorsEnabledAttribute(Func<string, bool> pIsDomainAllowedFunction, params string[] pDomains)
         {
-            AllowedDomains = new HashSet<string>();
-            IsDomainAllowedFunction = pIsDomainAllowedFunction;
+            _isDomainAllowedFunction = pIsDomainAllowedFunction;
             initialize(pDomains);
         }
 
-        public Func<string, bool> IsDomainAllowedFunction;
+        private readonly Func<string, bool> _isDomainAllowedFunction;
 
-        private bool isDomainAllowed(string origin)
+        private bool isDomainAllowed(string pOrigin)
         {
-            return !string.IsNullOrEmpty(origin) && (AllowedDomains.Contains(origin) || AllowedDomains.Contains("*"));
+            return !string.IsNullOrEmpty(pOrigin) && (AllowedDomains.Contains(pOrigin) || AllowedDomains.Contains("*"));
         }
 
         public override void OnActionExecuting(ActionExecutingContext pFilterContext)
@@ -65,7 +60,7 @@ namespace MMG.Public.MVC4Cors
 
             if (!string.IsNullOrWhiteSpace(origin))
             {
-                if (IsDomainAllowedFunction(origin))
+                if (_isDomainAllowedFunction(origin))
                 {
                     httpContext.Response.Headers.Add
                         (
@@ -82,15 +77,25 @@ namespace MMG.Public.MVC4Cors
         private void initialize(string pAllowedDomains)
         {
             if (string.IsNullOrEmpty(pAllowedDomains))
-                return;
-
-            initialize(pAllowedDomains.Split(',', ';'));
+            {
+                initialize();
+            }
+            else
+            {
+                initialize(pAllowedDomains.Split(',', ';'));
+            }
         }
 
         private void initialize(params string[] pAllowedDomains)
         {
+            //AllowedDomains = new HashSet<string>() { "*" };
+            AllowedDomains = new HashSet<string>();
+
             foreach (var allowedDomain in pAllowedDomains)
-                AllowedDomains.Add(allowedDomain);
+                if (!string.IsNullOrWhiteSpace(allowedDomain))
+                {
+                    AllowedDomains.Add(allowedDomain);
+                }
         }
     }
 }

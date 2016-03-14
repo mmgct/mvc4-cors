@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVCCors.Tests.EnableCorsTests.cs
-// Last Modified: 03/14/2016 8:55 AM
+// Last Modified: 03/14/2016 9:12 AM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -29,6 +29,13 @@ namespace MMG.Public.MVCCors.Tests
         {
             var filter = new CorsEnabledAttribute(String.Empty);
             CollectionAssert.IsEmpty(filter.AllowedDomains);
+        }
+
+        [Test]
+        public void TestEnableCorsActionFilter_EmptyDomainsAreIgnored()
+        {
+            var filter = new CorsEnabledAttribute(new[] {"domain1.com", "", "domain3.com"});
+            Assert.AreEqual(2, filter.AllowedDomains.Count);
         }
 
         [Test]
