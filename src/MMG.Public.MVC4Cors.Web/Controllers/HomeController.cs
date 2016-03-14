@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.Web.HomeController.cs
-// Last Modified: 03/10/2016 12:46 PM
+// Last Modified: 03/14/2016 10:49 AM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -23,6 +23,12 @@ namespace MMG.Public.MVC4Cors.Web.Controllers
 
         [CorsEnabled("http://MMG-GREENB3:62628")]
         public JsonResult TestCorsBlocked()
+        {
+            return Json("Result: true", JsonRequestBehavior.AllowGet);
+        }
+
+        // Look at FilterConfig... this is wired in conditionally
+        public JsonResult TestCorsInjection()
         {
             return Json("Result: true", JsonRequestBehavior.AllowGet);
         }

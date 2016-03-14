@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.CorsEnabledAttribute.cs
-// Last Modified: 03/14/2016 10:13 AM
+// Last Modified: 03/14/2016 10:56 AM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -58,7 +58,8 @@ namespace MMG.Public.MVC4Cors
                         Headers.AccessControlAllowOrigin, origin
                     );
             }
-            else
+            // Browser may not send origin if it's a same-origin request
+            else if (!string.IsNullOrWhiteSpace(origin))
             {
                 pFilterContext.Result = new HttpStatusCodeResult(HttpStatusCode.Forbidden, "Failed Cross-Origin Request");
             }

@@ -50,3 +50,7 @@
 function CallHomeBlocked(baseUrl) {
   return CallHome(baseUrl, "TestCorsBlocked");
 }
+
+function CallHomeInjected(baseUrl) {
+  return CallHome(baseUrl, "TestCorsInjection");
+}

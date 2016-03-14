@@ -1,3 +1,9 @@
+// *************************************************
+// MMG.Public.MVC4Cors.Headers.cs
+// Last Modified: 03/14/2016 10:53 AM
+// Modified By: Green, Brett (greenb1)
+// *************************************************
+
 namespace MMG.Public.MVC4Cors
 {
     public static class Headers
