@@ -1,12 +1,13 @@
 ﻿// *************************************************
 // MMG.Public.MVCCors.Tests.EnableCorsTests.cs
-// Last Modified: 03/14/2016 9:21 AM
+// Last Modified: 03/14/2016 10:14 AM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
 namespace MMG.Public.MVCCors.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Net;
     using System.Web;
     using System.Web.Mvc;
@@ -96,6 +97,14 @@ namespace MMG.Public.MVCCors.Tests
             Assert.AreEqual(origin, corsHeader);
         }
 
+        private class TestAllowableDomains : IAllowableDomains
+        {
+            public bool IsDomainAllowed(IEnumerable<string> pDomains, string pOrigin)
+            {
+                return pOrigin == "BOGUS";
+            }
+        }
+
         [Test]
         public void TestDelegateFunction()
         {
@@ -104,7 +113,7 @@ namespace MMG.Public.MVCCors.Tests
 
             var actionContext = getMockedActionExecutingContext(origin);
             var response = actionContext.Object.HttpContext.Response;
-            var filter = new CorsEnabledAttribute((string x) => { return x == "BOGUS"; }, allowedDomains);
+            var filter = new CorsEnabledAttribute(new TestAllowableDomains(), allowedDomains);
 
             filter.OnActionExecuting(actionContext.Object);
             Assert.AreEqual(1, response.Headers.Count);
@@ -121,27 +130,13 @@ namespace MMG.Public.MVCCors.Tests
 
             var actionContext = getMockedActionExecutingContext(origin);
             var response = actionContext.Object.HttpContext.Response;
-            var filter = new CorsEnabledAttribute((string x) => { return x == "BOGUS"; }, allowedDomain);
+            var filter = new CorsEnabledAttribute(new TestAllowableDomains(), allowedDomain);
 
             filter.OnActionExecuting(actionContext.Object);
             Assert.AreEqual(1, response.Headers.Count);
             var corsHeader = response.Headers["Access-Control-Allow-Origin"];
             Assert.NotNull(corsHeader);
             Assert.AreEqual(origin, corsHeader);
-        }
-
-        [Test]
-        public void TestDelegateNegativeFunction()
-        {
-            var origin = "BOGUS";
-            string[] allowedDomains = {"http://www.acme.com"};
-
-            var actionContext = getMockedActionExecutingContext(origin);
-            var response = actionContext.Object.HttpContext.Response;
-            var filter = new CorsEnabledAttribute((string x) => { return x != "BOGUS"; }, allowedDomains);
-
-            filter.OnActionExecuting(actionContext.Object);
-            Assert.AreEqual(0, response.Headers.Count);
         }
 
         [Test]

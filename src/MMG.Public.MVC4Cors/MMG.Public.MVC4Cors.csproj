@@ -73,8 +73,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AllowableDomains.cs" />
     <Compile Include="CorsEnabledAttribute.cs" />
     <Compile Include="Headers.cs" />
+    <Compile Include="IAllowableDomains.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
