@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVCCors.Tests.EnableCorsTests.cs
-// Last Modified: 03/14/2016 9:12 AM
+// Last Modified: 03/14/2016 9:13 AM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -34,22 +34,22 @@ namespace MMG.Public.MVCCors.Tests
         [Test]
         public void TestEnableCorsActionFilter_EmptyDomainsAreIgnored()
         {
-            var filter = new CorsEnabledAttribute(new[] {"domain1.com", "", "domain3.com"});
+            var filter = new CorsEnabledAttribute(new[] {"http://domain1.com", "", "http://domain3.com"});
             Assert.AreEqual(2, filter.AllowedDomains.Count);
         }
 
         [Test]
         public void TestEnableCorsActionFilter_InitializeBySingleCSVString()
         {
-            var filter = new CorsEnabledAttribute("domain1.com,domain2.com;domain3.com");
-            CollectionAssert.AreEqual(new[] {"domain1.com", "domain2.com", "domain3.com"}, filter.AllowedDomains);
+            var filter = new CorsEnabledAttribute("http://domain1.com,http://domain2.com;http://domain3.com");
+            CollectionAssert.AreEqual(new[] {"http://domain1.com", "http://domain2.com", "http://domain3.com"}, filter.AllowedDomains);
         }
 
         [Test]
         public void TestEnableCorsActionFilter_InitializeByArray()
         {
-            var filter = new CorsEnabledAttribute(new[] {"domain1.com", "domain2.com", "domain3.com"});
-            CollectionAssert.AreEqual(new[] {"domain1.com", "domain2.com", "domain3.com"}, filter.AllowedDomains);
+            var filter = new CorsEnabledAttribute(new[] {"http://domain1.com", "http://domain2.com", "http://domain3.com"});
+            CollectionAssert.AreEqual(new[] {"http://domain1.com", "http://domain2.com", "http://domain3.com"}, filter.AllowedDomains);
         }
 
         private Mock<ActionExecutingContext> getMockedActionExecutingContext(string pOrigin)
