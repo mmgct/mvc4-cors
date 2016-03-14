@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.CorsEnabledAttribute.cs
-// Last Modified: 03/14/2016 8:47 AM
+// Last Modified: 03/14/2016 8:50 AM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
