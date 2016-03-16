@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVCCors.Tests.EnableCorsTests.cs
-// Last Modified: 03/16/2016 9:55 AM
+// Last Modified: 03/16/2016 10:00 AM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -46,7 +46,7 @@ namespace MMG.Public.MVCCors.Tests
             CollectionAssert.AreEqual(new[] {"http://domain1.com", "http://domain2.com", "http://domain3.com"}, filter.AllowedDomains);
         }
 
-        private Mock<ActionExecutingContext> getMockedActionExecutingContext(string pOrigin, string pMethod = "GET")
+        private Mock<ActionExecutingContext> getMockedActionExecutingContext(string pOrigin, string pMethod = "GET", string corsMethod = "")
         {
             var request = new Mock<HttpRequestBase>();
             var response = new Mock<HttpResponseBase>();
@@ -61,15 +61,13 @@ namespace MMG.Public.MVCCors.Tests
             response.SetupProperty(x => x.StatusCode);
             response.SetupProperty(x => x.StatusDescription);
             request.SetupGet(x => x.HttpMethod).Returns(pMethod);
-            request.SetupGet(x => x.Headers).Returns
-                (new WebHeaderCollection()
-                {
-                    {
-                        Headers.Origin,
-                        pOrigin
-                    }
-                }
-                );
+            var requestHeaders = new WebHeaderCollection();
+            requestHeaders.Add(Headers.Origin, pOrigin);
+            if (!string.IsNullOrWhiteSpace(corsMethod))
+            {
+                requestHeaders.Add(Headers.AccessControlRequestMethod, corsMethod);
+            }
+            request.SetupGet(x => x.Headers).Returns(requestHeaders);
             actionContext.SetupGet(x => x.HttpContext).Returns(httpContext.Object);
             return actionContext;
         }
@@ -201,7 +199,7 @@ namespace MMG.Public.MVCCors.Tests
             string allowedMethods = "GET,POST,PUT";
 
             // Simulate a 'complex' request by calling OPTIONS verb
-            var actionContext = getMockedActionExecutingContext(origin, "OPTIONS");
+            var actionContext = getMockedActionExecutingContext(origin, "OPTIONS", "PUT");
             var response = actionContext.Object.HttpContext.Response;
             var filter = new CorsEnabledAttribute(allowedDomains, allowedMethods);
 
