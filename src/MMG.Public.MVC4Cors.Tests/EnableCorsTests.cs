@@ -1,12 +1,13 @@
 ﻿// *************************************************
 // MMG.Public.MVCCors.Tests.EnableCorsTests.cs
-// Last Modified: 03/03/2016 4:22 PM
+// Last Modified: 03/16/2016 10:00 AM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
 namespace MMG.Public.MVCCors.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Net;
     using System.Web;
     using System.Web.Mvc;
@@ -32,20 +33,20 @@ namespace MMG.Public.MVCCors.Tests
         }
 
         [Test]
-        public void TestEnableCorsActionFilter_InitializeBySingleCSVString()
+        public void TestEnableCorsActionFilter_EmptyDomainsAreIgnored()
         {
-            var filter = new CorsEnabledAttribute("domain1.com,domain2.com;domain3.com");
-            CollectionAssert.AreEqual(new[] {"domain1.com", "domain2.com", "domain3.com"}, filter.AllowedDomains);
+            var filter = new CorsEnabledAttribute("http://domain1.com,,http://domain3.com");
+            Assert.AreEqual(2, filter.AllowedDomains.Count);
         }
 
         [Test]
-        public void TestEnableCorsActionFilter_InitializeByArray()
+        public void TestEnableCorsActionFilter_InitializeBySingleCSVString()
         {
-            var filter = new CorsEnabledAttribute(new[] {"domain1.com", "domain2.com", "domain3.com"});
-            CollectionAssert.AreEqual(new[] {"domain1.com", "domain2.com", "domain3.com"}, filter.AllowedDomains);
+            var filter = new CorsEnabledAttribute("http://domain1.com,http://domain2.com;http://domain3.com");
+            CollectionAssert.AreEqual(new[] {"http://domain1.com", "http://domain2.com", "http://domain3.com"}, filter.AllowedDomains);
         }
 
-        private Mock<ActionExecutingContext> getMockedActionExecutingContext(string pOrigin)
+        private Mock<ActionExecutingContext> getMockedActionExecutingContext(string pOrigin, string pMethod = "GET", string corsMethod = "")
         {
             var request = new Mock<HttpRequestBase>();
             var response = new Mock<HttpResponseBase>();
@@ -57,16 +58,16 @@ namespace MMG.Public.MVCCors.Tests
             response.SetupGet(x => x.Headers).Returns(new WebHeaderCollection());
             response.Setup(r => r.AddHeader(It.IsAny<string>(), It.IsAny<string>()))
                 .Callback<string, string>((x, y) => response.Object.Headers.Add(x, y));
-
-            request.SetupGet(x => x.Headers).Returns
-                (new WebHeaderCollection()
-                {
-                    {
-                        Headers.Origin,
-                        pOrigin
-                    }
-                }
-                );
+            response.SetupProperty(x => x.StatusCode);
+            response.SetupProperty(x => x.StatusDescription);
+            request.SetupGet(x => x.HttpMethod).Returns(pMethod);
+            var requestHeaders = new WebHeaderCollection();
+            requestHeaders.Add(Headers.Origin, pOrigin);
+            if (!string.IsNullOrWhiteSpace(corsMethod))
+            {
+                requestHeaders.Add(Headers.AccessControlRequestMethod, corsMethod);
+            }
+            request.SetupGet(x => x.Headers).Returns(requestHeaders);
             actionContext.SetupGet(x => x.HttpContext).Returns(httpContext.Object);
             return actionContext;
         }
@@ -75,7 +76,7 @@ namespace MMG.Public.MVCCors.Tests
         public void TestEnableCorsActionFilter()
         {
             var origin = "http://www.acme.com";
-            string[] allowedDomains = {"http://www.acme.com"};
+            string allowedDomains = "http://www.acme.com";
 
             var actionContext = getMockedActionExecutingContext(origin);
             var response = actionContext.Object.HttpContext.Response;
@@ -88,11 +89,53 @@ namespace MMG.Public.MVCCors.Tests
             Assert.AreEqual(origin, corsHeader);
         }
 
+        private class TestAllowableDomains : IAllowableDomains
+        {
+            public bool IsDomainAllowed(IEnumerable<string> pDomains, string pOrigin)
+            {
+                return pOrigin == "BOGUS";
+            }
+        }
+
+        [Test]
+        public void TestDelegateFunction()
+        {
+            var origin = "BOGUS";
+            string allowedDomains = "http://www.acme.com";
+
+            var actionContext = getMockedActionExecutingContext(origin);
+            var response = actionContext.Object.HttpContext.Response;
+            var filter = new CorsEnabledAttribute(new TestAllowableDomains(), allowedDomains);
+
+            filter.OnActionExecuting(actionContext.Object);
+            Assert.AreEqual(1, response.Headers.Count);
+            var corsHeader = response.Headers["Access-Control-Allow-Origin"];
+            Assert.NotNull(corsHeader);
+            Assert.AreEqual(origin, corsHeader);
+        }
+
+        [Test]
+        public void TestDelegateFunction_StringInitialize()
+        {
+            var origin = "BOGUS";
+            string allowedDomain = "http://www.acme.com";
+
+            var actionContext = getMockedActionExecutingContext(origin);
+            var response = actionContext.Object.HttpContext.Response;
+            var filter = new CorsEnabledAttribute(new TestAllowableDomains(), allowedDomain);
+
+            filter.OnActionExecuting(actionContext.Object);
+            Assert.AreEqual(1, response.Headers.Count);
+            var corsHeader = response.Headers["Access-Control-Allow-Origin"];
+            Assert.NotNull(corsHeader);
+            Assert.AreEqual(origin, corsHeader);
+        }
+
         [Test]
         public void TestEnableCorsActionFilter_DisallowedDomain()
         {
             var origin = "http://www.acme.com";
-            string[] allowedDomains = {};
+            string allowedDomains = "";
 
             var actionContext = getMockedActionExecutingContext(origin);
             var response = actionContext.Object.HttpContext.Response;
@@ -100,13 +143,15 @@ namespace MMG.Public.MVCCors.Tests
 
             filter.OnActionExecuting(actionContext.Object);
             Assert.AreEqual(0, response.Headers.Count);
+            Assert.AreEqual((int) HttpStatusCode.Forbidden, ((HttpStatusCodeResult) (actionContext.Object.Result)).StatusCode);
+            Assert.AreEqual("Failed Cross-Origin Request", ((HttpStatusCodeResult) (actionContext.Object.Result)).StatusDescription);
         }
 
         [Test]
         public void TestEnableCorsActionFilter_MultipleDomainConfigEntries()
         {
             var origin = "http://www.acme.com";
-            string[] allowedDomains = {"http://www.nope.com", "http://www.acme.com", "http://www.google.com"};
+            string allowedDomains = "http://www.nope.com,http://www.acme.com,http://www.google.com";
 
             var actionContext = getMockedActionExecutingContext(origin);
             var response = actionContext.Object.HttpContext.Response;
@@ -123,7 +168,7 @@ namespace MMG.Public.MVCCors.Tests
         public void TestEnableCorsActionFilter_MultipleDomainsDenied()
         {
             var origin = "http://www.acme.com";
-            string[] allowedDomains = {"http://www.nope.com", "http://www.nope2.com", "http://www.google.com"};
+            string allowedDomains = "http://www.nope.com,http://www.nope2.com,http://www.google.com";
 
             var actionContext = getMockedActionExecutingContext(origin);
             var response = actionContext.Object.HttpContext.Response;
@@ -137,7 +182,6 @@ namespace MMG.Public.MVCCors.Tests
         public void TestEnableCorsActionFilter_NoDomainsDefined()
         {
             var origin = "http://www.acme.com";
-            string[] allowedDomains = {"http://www.nope.com", "http://www.nope2.com", "http://www.google.com"};
 
             var actionContext = getMockedActionExecutingContext(origin);
             var response = actionContext.Object.HttpContext.Response;
@@ -145,6 +189,28 @@ namespace MMG.Public.MVCCors.Tests
 
             filter.OnActionExecuting(actionContext.Object);
             Assert.AreEqual(0, response.Headers.Count);
+        }
+
+        [Test]
+        public void TestEnableCorsActionFilter_PreFlight_Put()
+        {
+            var origin = "http://www.acme.com";
+            string allowedDomains = "http://www.acme.com";
+            string allowedMethods = "GET,POST,PUT";
+
+            // Simulate a 'complex' request by calling OPTIONS verb
+            var actionContext = getMockedActionExecutingContext(origin, "OPTIONS", "PUT");
+            var response = actionContext.Object.HttpContext.Response;
+            var filter = new CorsEnabledAttribute(allowedDomains, allowedMethods);
+
+            filter.OnActionExecuting(actionContext.Object);
+            Assert.AreEqual(2, response.Headers.Count);
+            var corsHeader = response.Headers["Access-Control-Allow-Origin"];
+            Assert.NotNull(corsHeader);
+            Assert.AreEqual(origin, corsHeader);
+            var allowMethodsHeader = response.Headers["Access-Control-Allow-Methods"];
+            Assert.NotNull(allowMethodsHeader);
+            Assert.AreEqual(allowedMethods, allowMethodsHeader);
         }
     }
 }
