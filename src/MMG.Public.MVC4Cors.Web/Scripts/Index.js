@@ -59,5 +59,5 @@ function CallHomeInjected(baseUrl) {
 }
 
 function CallHomeComplex(baseUrl) {
-  return CallHome(baseUrl, "TestCors", false);
+  return CallHome(baseUrl, "TestCorsPut", false);
 }

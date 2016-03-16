@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.Web.HomeController.cs
-// Last Modified: 03/16/2016 10:08 AM
+// Last Modified: 03/16/2016 11:04 AM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -15,10 +15,16 @@ namespace MMG.Public.MVC4Cors.Web.Controllers
             return View();
         }
 
-        [CorsEnabled("http://localhost:62628, http://MMG-GREENB3:62628", "GET, POST, PUT")]
+        [CorsEnabled("http://localhost:62628, http://MMG-GREENB3:62628", "GET, POST")]
         public JsonResult TestCors()
         {
             return Json("Result: true", JsonRequestBehavior.AllowGet);
+        }
+
+        [CorsEnabled("http://localhost:62628, http://MMG-GREENB3:62628", "PUT")]
+        public JsonResult TestCorsPut()
+        {
+            return Json("Created: true");
         }
 
         [CorsEnabled("http://MMG-GREENB3:62628")]
