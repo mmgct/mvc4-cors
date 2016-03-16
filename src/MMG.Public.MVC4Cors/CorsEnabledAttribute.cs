@@ -1,6 +1,6 @@
 ﻿// *************************************************
 // MMG.Public.MVC4Cors.CorsEnabledAttribute.cs
-// Last Modified: 03/14/2016 10:56 AM
+// Last Modified: 03/16/2016 9:43 AM
 // Modified By: Green, Brett (greenb1)
 // *************************************************
 
@@ -14,36 +14,21 @@ namespace MMG.Public.MVC4Cors
     {
         private readonly IAllowableDomains _allowableDomains;
         public HashSet<string> AllowedDomains { get; private set; }
+        public HashSet<string> AllowedMethods { get; private set; }
 
-        public CorsEnabledAttribute()
+        public CorsEnabledAttribute() : this(null, "", "") {}
+
+        public CorsEnabledAttribute(string pAllowedDomains) : this(null, pAllowedDomains, "") {}
+
+        public CorsEnabledAttribute(string pAllowedDomains, string pAllowedMethods) : this(null, pAllowedDomains, pAllowedMethods) {}
+
+        public CorsEnabledAttribute(IAllowableDomains pAllowableDomains, string pAllowedDomains) : this(pAllowableDomains, pAllowedDomains, "") {}
+
+        public CorsEnabledAttribute(IAllowableDomains pAllowableDomains, string pAllowedDomains, string pAllowedMethods)
         {
-            _allowableDomains = new AllowableDomains();
-            initialize();
-        }
-
-        public CorsEnabledAttribute(string pAllowedDomain)
-        {
-            _allowableDomains = new AllowableDomains();
-            initialize(pAllowedDomain);
-        }
-
-        public CorsEnabledAttribute(params string[] pDomains)
-        {
-            _allowableDomains = new AllowableDomains();
-            initialize(pDomains);
-        }
-
-        public CorsEnabledAttribute(IAllowableDomains pAllowableDomains, string pAllowedDomain)
-        {
-            _allowableDomains = pAllowableDomains;
-            initialize(pAllowedDomain);
-        }
-
-
-        public CorsEnabledAttribute(IAllowableDomains pAllowableDomains, params string[] pDomains)
-        {
-            _allowableDomains = pAllowableDomains;
-            initialize(pDomains);
+            _allowableDomains = pAllowableDomains ?? new AllowableDomains();
+            initializeDomains(pAllowedDomains);
+            initializeMethods(pAllowedMethods);
         }
 
         public override void OnActionExecuting(ActionExecutingContext pFilterContext)
@@ -65,19 +50,19 @@ namespace MMG.Public.MVC4Cors
             }
         }
 
-        private void initialize(string pAllowedDomains)
+        private void initializeDomains(string pAllowedDomains)
         {
             if (string.IsNullOrEmpty(pAllowedDomains))
             {
-                initialize();
+                initializeDomains();
             }
             else
             {
-                initialize(pAllowedDomains.Split(',', ';'));
+                initializeDomains(pAllowedDomains.Split(',', ';'));
             }
         }
 
-        private void initialize(params string[] pAllowedDomains)
+        private void initializeDomains(params string[] pAllowedDomains)
         {
             //AllowedDomains = new HashSet<string>() { "*" };
             AllowedDomains = new HashSet<string>();
@@ -86,6 +71,30 @@ namespace MMG.Public.MVC4Cors
                 if (!string.IsNullOrWhiteSpace(allowedDomain))
                 {
                     AllowedDomains.Add(allowedDomain);
+                }
+        }
+
+        private void initializeMethods(string pAllowedMethods)
+        {
+            if (string.IsNullOrEmpty(pAllowedMethods))
+            {
+                initializeMethods("GET", "POST");
+            }
+            else
+            {
+                initializeMethods(pAllowedMethods.Split(',', ';'));
+            }
+        }
+
+        private void initializeMethods(params string[] pAllowedMethods)
+        {
+            //AllowedDomains = new HashSet<string>() { "*" };
+            AllowedMethods = new HashSet<string>();
+
+            foreach (var allowedMethod in pAllowedMethods)
+                if (!string.IsNullOrWhiteSpace(allowedMethod))
+                {
+                    AllowedMethods.Add(allowedMethod);
                 }
         }
     }
