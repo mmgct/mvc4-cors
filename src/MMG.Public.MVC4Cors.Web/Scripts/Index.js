@@ -1,12 +1,15 @@
-﻿function CallHome(baseUrl, method) {
+﻿function CallHome(baseUrl, method, simple) {
   if (typeof method === 'undefined') {
     method = 'TestCors';
+  }
+  if (typeof simple === 'undefined') {
+    simple = true;
   }
   console.log("Calling " + method + " action");
   var jqxhr = $.ajax(
   {
     url: baseUrl + '/Home/' + method,
-    method: 'GET'
+    method: simple ? 'GET' : 'PUT'
   }).done(function(resp, status, request) {
     var el = $("#response");
     var html;
@@ -53,4 +56,8 @@ function CallHomeBlocked(baseUrl) {
 
 function CallHomeInjected(baseUrl) {
   return CallHome(baseUrl, "TestCorsInjection");
+}
+
+function CallHomeComplex(baseUrl) {
+  return CallHome(baseUrl, "TestCors", false);
 }
